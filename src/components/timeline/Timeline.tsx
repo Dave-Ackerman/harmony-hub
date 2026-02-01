@@ -4,6 +4,7 @@ import { EmailThread, CalendarEvent, TimelineItem } from '@/types/flowstate';
 import { EmailItem } from './EmailItem';
 import { EventItem } from './EventItem';
 import { cn } from '@/lib/utils';
+import { Sparkles, Inbox } from 'lucide-react';
 
 interface TimelineProps {
   emails: EmailThread[];
@@ -54,7 +55,6 @@ export function Timeline({ emails, events, focusMode }: TimelineProps) {
 
   const allItems: TimelineItem[] = useMemo(() => {
     if (focusMode) {
-      // In focus mode, only show high priority emails and upcoming events
       const filteredEmails = emails.filter(
         (e) => e.priority === 'urgent' || e.priority === 'high' || e.isStarred
       );
@@ -66,21 +66,31 @@ export function Timeline({ emails, events, focusMode }: TimelineProps) {
   const grouped = useMemo(() => groupByDate(allItems), [allItems]);
 
   return (
-    <div className="flex-1 overflow-y-auto scrollbar-thin">
-      <div className="max-w-3xl mx-auto px-4 py-6 space-y-8">
-        {grouped.map(({ date, items }) => (
-          <section key={date.toISOString()} className="animate-fade-in">
+    <div className="flex-1 overflow-y-auto scrollbar-thin lg:scrollbar-hide">
+      <div className="max-w-3xl mx-auto px-4 lg:px-6 py-6 space-y-8">
+        {grouped.map(({ date, items }, groupIndex) => (
+          <section key={date.toISOString()} className="animate-fade-in-up" style={{ animationDelay: `${groupIndex * 100}ms` }}>
             {/* Date Header */}
-            <div className="sticky top-0 z-10 py-2 glass">
-              <h2 className="text-sm font-semibold text-muted-foreground">
-                {getDateLabel(date)}
-              </h2>
+            <div className="sticky top-0 z-10 py-3">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-subtle border border-border/30 shadow-xs">
+                <div className={cn(
+                  "w-2 h-2 rounded-full",
+                  isToday(date) ? "bg-accent animate-pulse-soft" : "bg-muted-foreground/30"
+                )} />
+                <h2 className="text-sm font-semibold text-foreground">
+                  {getDateLabel(date)}
+                </h2>
+              </div>
             </div>
 
             {/* Items */}
-            <div className="space-y-2 mt-2">
-              {items.map((item) => (
-                <div key={item.id} className="animate-slide-up">
+            <div className="space-y-3 mt-3">
+              {items.map((item, itemIndex) => (
+                <div 
+                  key={item.id} 
+                  className="animate-fade-in-up"
+                  style={{ animationDelay: `${(groupIndex * 100) + (itemIndex * 50)}ms` }}
+                >
                   {item.type === 'email' ? (
                     <EmailItem
                       email={item}
@@ -100,12 +110,23 @@ export function Timeline({ emails, events, focusMode }: TimelineProps) {
           </section>
         ))}
 
+        {/* Empty State */}
         {allItems.length === 0 && (
-          <div className="text-center py-16">
-            <p className="text-muted-foreground">
+          <div className="text-center py-20 animate-fade-in-up">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-muted/50 flex items-center justify-center">
+              {focusMode ? (
+                <Sparkles className="h-10 w-10 text-focus animate-float" />
+              ) : (
+                <Inbox className="h-10 w-10 text-muted-foreground" />
+              )}
+            </div>
+            <h3 className="text-xl font-display font-semibold text-foreground mb-2">
+              {focusMode ? 'Focus time!' : 'All caught up'}
+            </h3>
+            <p className="text-muted-foreground max-w-sm mx-auto">
               {focusMode
-                ? 'No priority items. Enjoy your focus time!'
-                : 'All clear. Time to take a break.'}
+                ? 'No priority items. Enjoy your distraction-free focus time.'
+                : 'You\'re all caught up. Take a moment to breathe.'}
             </p>
           </div>
         )}

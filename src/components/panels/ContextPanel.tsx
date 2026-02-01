@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { CalendarEvent } from '@/types/flowstate';
 import { MiniCalendar } from '@/components/calendar/MiniCalendar';
 import { UpcomingEvents } from '@/components/calendar/UpcomingEvents';
-import { Zap, CheckCircle2, Circle } from 'lucide-react';
+import { Zap, CheckCircle2, Circle, Plus, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 interface ContextPanelProps {
   events: CalendarEvent[];
@@ -30,21 +31,25 @@ export function ContextPanel({ events, focusMode }: ContextPanelProps) {
     ));
   };
 
+  const completedCount = tasks.filter(t => t.completed).length;
+  const progressPercent = (completedCount / tasks.length) * 100;
+
   return (
-    <aside className="w-80 border-l bg-background p-4 space-y-4 overflow-y-auto scrollbar-thin">
+    <aside className="hidden lg:flex flex-col w-80 xl:w-96 border-l bg-background/50 backdrop-blur-sm p-4 xl:p-6 space-y-5 overflow-y-auto scrollbar-thin">
       {/* Focus Mode Banner */}
       {focusMode && (
-        <div className="p-4 rounded-xl bg-focus/10 border border-focus/20 animate-slide-in-right">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-lg bg-focus/20">
-              <Zap className="h-5 w-5 text-focus" />
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-focus/15 to-focus/5 border border-focus/20 shadow-soft animate-slide-in-right">
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-xl bg-focus/20 shadow-inner">
+              <Zap className="h-6 w-6 text-focus" />
             </div>
-            <div>
-              <h3 className="font-medium text-focus">Focus Mode</h3>
-              <p className="text-xs text-muted-foreground">
-                Only priority items shown
+            <div className="flex-1">
+              <h3 className="font-semibold text-focus text-lg">Focus Mode</h3>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Showing priority items only
               </p>
             </div>
+            <Sparkles className="h-5 w-5 text-focus/50 animate-float" />
           </div>
         </div>
       )}
@@ -60,28 +65,51 @@ export function ContextPanel({ events, focusMode }: ContextPanelProps) {
       <UpcomingEvents events={events} />
 
       {/* Quick Tasks */}
-      <div className="p-4 bg-card rounded-xl border shadow-soft">
-        <h3 className="font-display font-medium text-foreground mb-4">
-          Quick Tasks
-        </h3>
-        <div className="space-y-2">
-          {tasks.map((task) => (
+      <div className="p-5 bg-card rounded-2xl border shadow-soft">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-display font-semibold text-foreground">
+              Quick Tasks
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {completedCount} of {tasks.length} done
+            </p>
+          </div>
+          <Button variant="ghost" size="icon-sm" className="rounded-xl">
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="h-1.5 bg-muted rounded-full mb-4 overflow-hidden">
+          <div 
+            className="h-full bg-gradient-to-r from-success to-success/70 rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+
+        <div className="space-y-1">
+          {tasks.map((task, index) => (
             <button
               key={task.id}
               onClick={() => toggleTask(task.id)}
               className={cn(
-                "w-full flex items-center gap-3 p-2 rounded-lg text-left transition-all duration-200",
+                "w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all duration-300 touch-target",
                 "hover:bg-secondary/50",
-                task.completed && "opacity-60"
+                task.completed && "opacity-60",
+                "animate-fade-in-up"
               )}
+              style={{ animationDelay: `${index * 50}ms` }}
             >
-              {task.completed ? (
-                <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
-              ) : (
-                <Circle className="h-4 w-4 text-muted-foreground shrink-0" />
-              )}
+              <div className="relative">
+                {task.completed ? (
+                  <CheckCircle2 className="h-5 w-5 text-success shrink-0 animate-scale-in" />
+                ) : (
+                  <Circle className="h-5 w-5 text-muted-foreground shrink-0" />
+                )}
+              </div>
               <span className={cn(
-                "text-sm",
+                "text-sm flex-1 transition-all duration-300",
                 task.completed && "line-through text-muted-foreground"
               )}>
                 {task.text}
