@@ -9,27 +9,27 @@ interface AvatarProps {
 }
 
 const sizeClasses = {
-  sm: 'h-6 w-6 text-[10px]',
-  md: 'h-8 w-8 text-xs',
-  lg: 'h-10 w-10 text-sm',
+  sm: 'h-7 w-7 text-[10px]',
+  md: 'h-9 w-9 text-xs',
+  lg: 'h-11 w-11 text-sm',
 };
 
-const colors = [
-  'bg-accent/20 text-accent',
-  'bg-focus/20 text-focus',
-  'bg-success/20 text-success',
-  'bg-event-meeting/20 text-event-meeting',
-  'bg-event-task/20 text-event-task',
-  'bg-event-reminder/20 text-event-reminder',
+const gradients = [
+  'from-accent/30 to-accent/10 text-accent',
+  'from-focus/30 to-focus/10 text-focus',
+  'from-success/30 to-success/10 text-success',
+  'from-event-meeting/30 to-event-meeting/10 text-event-meeting',
+  'from-event-task/30 to-event-task/10 text-event-task',
+  'from-event-reminder/30 to-event-reminder/10 text-event-reminder',
 ];
 
-function getColorForPerson(person: Person): string {
-  const index = person.id.charCodeAt(0) % colors.length;
-  return colors[index];
+function getGradientForPerson(person: Person): string {
+  const index = person.id.charCodeAt(0) % gradients.length;
+  return gradients[index];
 }
 
 export function Avatar({ person, size = 'md', showStatus, className }: AvatarProps) {
-  const colorClass = getColorForPerson(person);
+  const gradientClass = getGradientForPerson(person);
   
   return (
     <div className={cn("relative shrink-0", className)}>
@@ -38,23 +38,23 @@ export function Avatar({ person, size = 'md', showStatus, className }: AvatarPro
           src={person.avatar}
           alt={person.name}
           className={cn(
-            "rounded-full object-cover ring-2 ring-background",
+            "rounded-xl object-cover ring-2 ring-background shadow-xs",
             sizeClasses[size]
           )}
         />
       ) : (
         <div
           className={cn(
-            "rounded-full flex items-center justify-center font-medium ring-2 ring-background",
+            "rounded-xl flex items-center justify-center font-semibold ring-2 ring-background bg-gradient-to-br shadow-xs",
             sizeClasses[size],
-            colorClass
+            gradientClass
           )}
         >
           {person.initials}
         </div>
       )}
       {showStatus && (
-        <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-success ring-2 ring-background" />
+        <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-success ring-2 ring-background shadow-xs" />
       )}
     </div>
   );
@@ -71,14 +71,14 @@ export function AvatarGroup({ people, max = 3, size = 'sm' }: AvatarGroupProps) 
   const remaining = people.length - max;
 
   return (
-    <div className="flex -space-x-2">
+    <div className="flex -space-x-2.5">
       {displayed.map((person) => (
         <Avatar key={person.id} person={person} size={size} />
       ))}
       {remaining > 0 && (
         <div
           className={cn(
-            "rounded-full flex items-center justify-center font-medium bg-muted text-muted-foreground ring-2 ring-background",
+            "rounded-xl flex items-center justify-center font-semibold bg-muted text-muted-foreground ring-2 ring-background shadow-xs",
             sizeClasses[size]
           )}
         >

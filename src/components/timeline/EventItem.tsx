@@ -1,4 +1,4 @@
-import { Video, MapPin, Clock, Zap } from 'lucide-react';
+import { Video, MapPin, Clock, Zap, ExternalLink } from 'lucide-react';
 import { CalendarEvent } from '@/types/flowstate';
 import { AvatarGroup } from '@/components/shared/Avatar';
 import { cn } from '@/lib/utils';
@@ -14,27 +14,31 @@ interface EventItemProps {
 const eventTypeStyles = {
   meeting: {
     bg: 'bg-event-meeting/10',
-    border: 'border-event-meeting/30',
+    border: 'border-event-meeting/20',
     accent: 'bg-event-meeting',
     text: 'text-event-meeting',
+    glow: 'shadow-[0_0_20px_-5px_hsl(var(--event-meeting)/0.3)]',
   },
   task: {
     bg: 'bg-event-task/10',
-    border: 'border-event-task/30',
+    border: 'border-event-task/20',
     accent: 'bg-event-task',
     text: 'text-event-task',
+    glow: 'shadow-[0_0_20px_-5px_hsl(var(--event-task)/0.3)]',
   },
   reminder: {
     bg: 'bg-event-reminder/10',
-    border: 'border-event-reminder/30',
+    border: 'border-event-reminder/20',
     accent: 'bg-event-reminder',
     text: 'text-event-reminder',
+    glow: 'shadow-[0_0_20px_-5px_hsl(var(--event-reminder)/0.3)]',
   },
   focus: {
     bg: 'bg-focus/10',
-    border: 'border-focus/30',
+    border: 'border-focus/20',
     accent: 'bg-focus',
     text: 'text-focus',
+    glow: 'shadow-[0_0_20px_-5px_hsl(var(--focus)/0.3)]',
   },
 };
 
@@ -49,14 +53,15 @@ export function EventItem({ event, isSelected, onClick, compact }: EventItemProp
       <div
         onClick={onClick}
         className={cn(
-          "flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all duration-200",
+          "flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-300 touch-target",
           styles.bg,
-          styles.border,
           "border",
+          styles.border,
+          "hover:shadow-soft",
           isSelected && "shadow-medium"
         )}
       >
-        <div className={cn("w-1 h-6 rounded-full", styles.accent)} />
+        <div className={cn("w-1 h-8 rounded-full", styles.accent)} />
         <div className="flex-1 min-w-0">
           <span className={cn("text-sm font-medium truncate block", styles.text)}>
             {event.title}
@@ -77,26 +82,29 @@ export function EventItem({ event, isSelected, onClick, compact }: EventItemProp
     <article
       onClick={onClick}
       className={cn(
-        "group relative p-4 rounded-xl cursor-pointer transition-all duration-200 border",
+        "group relative p-5 rounded-2xl cursor-pointer transition-all duration-300 border touch-target",
         styles.bg,
         styles.border,
-        isSelected && "shadow-medium"
+        "hover:shadow-soft",
+        isSelected && cn("shadow-medium", styles.glow)
       )}
     >
       {/* Accent Bar */}
-      <div className={cn("absolute left-0 top-4 bottom-4 w-1 rounded-r-full", styles.accent)} />
+      <div className={cn("absolute left-0 top-5 bottom-5 w-1.5 rounded-r-full", styles.accent)} />
 
-      <div className="pl-3">
+      <div className="pl-4">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 mb-2">
-          <div>
-            <h3 className={cn("font-medium", styles.text)}>
+        <div className="flex items-start justify-between gap-4 mb-3">
+          <div className="flex-1 min-w-0">
+            <h3 className={cn("font-semibold text-lg truncate", styles.text)}>
               {event.title}
             </h3>
-            <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
-              <Clock className="h-3.5 w-3.5" />
-              <span>{timeString} – {endTimeString}</span>
-              <span className="text-xs bg-muted px-1.5 py-0.5 rounded">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5" />
+                {timeString} – {endTimeString}
+              </span>
+              <span className="px-2 py-0.5 text-xs font-medium bg-muted/50 rounded-md">
                 {duration}m
               </span>
             </div>
@@ -104,8 +112,10 @@ export function EventItem({ event, isSelected, onClick, compact }: EventItemProp
 
           {event.eventType === 'focus' && (
             <div className={cn(
-              "p-2 rounded-lg",
-              styles.bg
+              "p-3 rounded-xl",
+              styles.bg,
+              "border",
+              styles.border
             )}>
               <Zap className={cn("h-5 w-5", styles.text)} />
             </div>
@@ -114,21 +124,21 @@ export function EventItem({ event, isSelected, onClick, compact }: EventItemProp
 
         {/* Description */}
         {event.description && (
-          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
             {event.description}
           </p>
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             {event.attendees.length > 0 && (
               <AvatarGroup people={event.attendees} max={4} />
             )}
             {event.location && (
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <MapPin className="h-3 w-3" />
-                {event.location}
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/40 px-2.5 py-1.5 rounded-lg">
+                <MapPin className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{event.location}</span>
               </span>
             )}
           </div>
@@ -140,14 +150,14 @@ export function EventItem({ event, isSelected, onClick, compact }: EventItemProp
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
-                styles.bg,
-                styles.text,
-                "hover:opacity-80"
+                "inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300",
+                "bg-card border shadow-xs hover:shadow-soft",
+                styles.text
               )}
             >
-              <Video className="h-3.5 w-3.5" />
-              Join
+              <Video className="h-4 w-4" />
+              Join Call
+              <ExternalLink className="h-3 w-3 opacity-50" />
             </a>
           )}
         </div>
